@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Examen Aspirant | Seimei</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<style>
+  @import url('vendor/fonts.css');
+  :root{--sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;--rust:#7a3b15;
+    --parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;--blood-light:#c4453a;--gold:#ffd86b;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;
+    background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+      linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+  body::before{content:"";position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;}
+  .wrap{position:relative;z-index:2;max-width:1050px;margin:0 auto;padding:30px 18px 70px;}
+  header{text-align:center;margin-bottom:24px;}
+  h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4vw,2.4rem);
+    color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 30px rgba(181,113,43,.5);letter-spacing:.05em;}
+  .sub{color:var(--sand-deep);font-style:italic;font-size:1.1rem;margin-top:4px;}
+  .divider{height:2px;width:55%;margin:16px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+  .panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+    border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;margin-bottom:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);}
+  #login{max-width:420px;margin:40px auto;}
+  label{display:block;color:var(--sand-deep);margin-bottom:6px;font-size:1.05rem;}
+  input[type=password]{width:100%;padding:13px 16px;font-family:inherit;font-size:1.1rem;
+    background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;}
+  input[type=password]:focus{border-color:var(--chakra);box-shadow:0 0 14px rgba(61,220,132,.3);}
+  input[type=text].search{padding:10px 14px;font-family:inherit;font-size:1rem;
+    background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;}
+  .btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;cursor:pointer;border:none;
+    border-radius:9px;padding:11px 22px;font-size:.9rem;text-transform:uppercase;
+    background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));color:#fff5e6;
+    box-shadow:0 4px 0 var(--rust),0 7px 14px rgba(0,0,0,.4);transition:transform .12s,box-shadow .12s;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--rust);}
+  .btn.ghost{background:transparent;border:1px solid var(--ocre);box-shadow:none;color:var(--sand-1);}
+  .btn.sm{padding:5px 12px;font-size:.78rem;box-shadow:0 3px 0 var(--rust);}
+  .btn.recue{background:linear-gradient(160deg,#2a7a4a,#1a5a34);box-shadow:0 3px 0 #0d3a20;}
+  .btn.recale{background:linear-gradient(160deg,#7a2a2a,#5a1a1a);box-shadow:0 3px 0 #3a0d0d;}
+  #dash{display:none;}
+  .summary{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+  .card{flex:1 1 130px;text-align:center;background:rgba(20,12,4,.5);
+    border:1px solid rgba(181,113,43,.4);border-radius:10px;padding:12px 6px;}
+  .card .lbl{font-size:.82rem;color:var(--sand-deep);text-transform:uppercase;letter-spacing:.07em;}
+  .card .num{font-family:'Cinzel',serif;font-size:1.7rem;font-weight:700;color:var(--sand-1);}
+  .card .num.green{color:var(--chakra-glow);}
+  .card .num.gold{color:var(--gold);}
+  .card .num.red{color:var(--blood-light);}
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;
+    justify-content:space-between;margin-bottom:18px;}
+  .toolbar .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  table{width:100%;border-collapse:collapse;font-size:1.02rem;}
+  th{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);text-align:left;
+    padding:10px 8px;border-bottom:2px solid rgba(181,113,43,.4);font-size:.88rem;
+    letter-spacing:.04em;cursor:pointer;user-select:none;}
+  th:hover{color:var(--sand-1);}
+  td{padding:9px 8px;border-bottom:1px solid rgba(181,113,43,.18);color:var(--parchment);
+    vertical-align:middle;}
+  tr:hover td{background:rgba(181,113,43,.07);}
+  .score-cell{font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;}
+  .score-high{color:var(--chakra-glow);}
+  .score-mid{color:var(--gold);}
+  .score-low{color:var(--blood-light);}
+  .time-cell{font-family:'Cinzel',serif;font-size:.95rem;color:var(--sand-deep);}
+  .status-badge{display:inline-block;font-family:'Cinzel',serif;font-weight:700;
+    font-size:.8rem;padding:3px 10px;border-radius:6px;letter-spacing:.05em;}
+  .status-attente{background:rgba(200,155,94,.2);color:var(--sand-deep);}
+  .status-recue{background:rgba(61,220,132,.2);color:var(--chakra-glow);}
+  .status-recale{background:rgba(196,69,58,.2);color:var(--blood-light);}
+  .muted{color:var(--sand-deep);font-size:.92rem;}
+  .empty{text-align:center;color:var(--sand-deep);font-style:italic;padding:30px;}
+  .err{color:#ffcaa0;background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.5);
+    border-radius:8px;padding:12px;}
+  .tablewrap{overflow-x:auto;}
+  /* detail modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;}
+  .modal{background:#1e1208;border:1px solid var(--ocre);border-radius:14px;
+    width:100%;max-width:680px;max-height:85vh;overflow-y:auto;padding:24px;
+    box-shadow:0 20px 60px rgba(0,0,0,.7);}
+  .modal h3{font-family:'Cinzel',serif;color:var(--gold);font-size:1.2rem;margin-bottom:16px;}
+  .modal-close{float:right;cursor:pointer;color:var(--sand-deep);font-size:1.4rem;line-height:1;}
+  .modal-close:hover{color:var(--sand-1);}
+  .detail-row{padding:10px 0;border-bottom:1px solid rgba(181,113,43,.18);font-size:1rem;}
+  .detail-row:last-child{border:none;}
+  .detail-q{color:var(--sand-1);font-weight:600;margin-bottom:4px;line-height:1.35;}
+  .detail-ans{font-size:.95rem;margin-top:3px;}
+  .detail-ok{color:var(--chakra-glow);}
+  .detail-bad{color:var(--blood-light);}
+  .detail-correct-label{color:var(--sand-deep);font-style:italic;font-size:.9rem;}
+  .elim-badge{display:inline-block;background:rgba(196,69,58,.3);color:var(--blood-light);
+    font-family:'Cinzel',serif;font-size:.85rem;padding:4px 12px;border-radius:6px;
+    border:1px solid rgba(196,69,58,.5);margin-bottom:12px;}
+  footer{text-align:center;margin-top:24px;color:var(--sand-deep);font-style:italic;}
+  footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Tableau de bord — Examen Aspirant</h1>
+    <div class="sub">Section Médicale Seimei · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <div id="login" class="panel">
+    <label for="pw">Mot de passe formateur</label>
+    <input type="password" id="pw" placeholder="••••••••" autocomplete="off">
+    <div style="margin-top:16px;text-align:center;">
+      <button class="btn" id="loginBtn">Accéder</button>
+    </div>
+    <div id="loginErr" class="err" style="display:none;margin-top:12px;">Mot de passe incorrect.</div>
+  </div>
+
+  <div id="dash">
+    <div class="panel">
+      <div class="summary" id="summary"></div>
+      <div class="toolbar">
+        <div class="left">
+          <input type="text" class="search" id="search" placeholder="Rechercher un apprenti...">
+          <select id="filterStatus" style="padding:10px 14px;font-family:inherit;font-size:1rem;background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;">
+            <option value="">Tous les statuts</option>
+            <option value="attente">En attente</option>
+            <option value="recue">Reçus</option>
+            <option value="recale">Recalés</option>
+          </select>
+        </div>
+        <div class="left">
+          <button class="btn ghost" id="refreshBtn">Actualiser</button>
+          <button class="btn ghost" id="csvBtn">Exporter CSV</button>
+        </div>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="created_at">Date</th>
+              <th data-sort="name">Apprenti</th>
+              <th data-sort="score">Score</th>
+              <th data-sort="correct">Bonnes rép.</th>
+              <th data-sort="time_left">Temps restant</th>
+              <th>Statut</th>
+              <th>Détail</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="7" class="empty">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-bg" id="modalBg" style="display:none;" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <span class="modal-close" onclick="closeModal()">✕</span>
+      <h3 id="modalTitle">Détail</h3>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer>Données en temps réel · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+  var el=function(id){return document.getElementById(id);};
+  var rows=[],sortKey='created_at',sortDir=-1,sb=null;
+
+  function doLogin(){
+    var pw=el('pw').value;
+    var expected=(typeof FORMATEUR_PASSWORD!=='undefined')?FORMATEUR_PASSWORD:'seimei2024';
+    if(pw===expected){el('login').style.display='none';el('dash').style.display='block';init();load();}
+    else{el('loginErr').style.display='block';}
+  }
+  el('loginBtn').addEventListener('click',doLogin);
+  el('pw').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+  function init(){
+    if(typeof SUPABASE_URL==='undefined'||typeof SUPABASE_KEY==='undefined')return;
+    try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){sb=null;}
+  }
+
+  function load(){
+    if(!sb){el('tbody').innerHTML='<tr><td colspan="7" class="err">Configuration Supabase absente.</td></tr>';return;}
+    el('tbody').innerHTML='<tr><td colspan="7" class="empty">Chargement...</td></tr>';
+    sb.from('exam_aspirant').select('*').order('created_at',{ascending:false}).then(function(res){
+      if(res.error){el('tbody').innerHTML='<tr><td colspan="7" class="err">'+esc(res.error.message)+'</td></tr>';return;}
+      rows=res.data||[];render();
+    });
+  }
+
+  function getStatus(row){return row.statut||'attente';}
+
+  function render(){
+    var q=el('search').value.toLowerCase().trim();
+    var fs=el('filterStatus').value;
+    var list=rows.filter(function(r){
+      var okName=!q||(r.name||'').toLowerCase().indexOf(q)>=0;
+      var okStatus=!fs||(getStatus(r)===fs);
+      return okName&&okStatus;
+    });
+
+    // summary
+    var total=rows.length;
+    var recus=rows.filter(function(r){return getStatus(r)==='recue';}).length;
+    var recales=rows.filter(function(r){return getStatus(r)==='recale';}).length;
+    var attente=rows.filter(function(r){return getStatus(r)==='attente';}).length;
+    var avgScore=total?Math.round(rows.reduce(function(a,r){return a+(r.score||0);},0)/total):0;
+    el('summary').innerHTML=
+      card('Candidats',total)+
+      card('En attente',attente,'gold')+
+      card('Reçus',recus,'green')+
+      card('Recalés',recales,'red')+
+      card('Score moyen',avgScore+'%','');
+
+    list.sort(function(a,b){
+      var x=a[sortKey],y=b[sortKey];
+      if(sortKey==='created_at'){x=new Date(x);y=new Date(y);}
+      if(typeof x==='number'&&typeof y==='number'){return (x-y)*sortDir;}
+      if(typeof x==='string'){x=x.toLowerCase();y=(y||'').toLowerCase();}
+      if(x<y)return -1*sortDir;if(x>y)return 1*sortDir;return 0;
+    });
+
+    var tb=el('tbody');
+    if(list.length===0){tb.innerHTML='<tr><td colspan="8" class="empty">Aucun candidat.</td></tr>';return;}
+    tb.innerHTML='';
+    list.forEach(function(r){
+      var status=getStatus(r);
+      var scoreClass=r.score>=75?'score-high':r.score>=50?'score-mid':'score-low';
+      var tl=r.time_left!=null?fmtTime(r.time_left):'-';
+      var elim=r.eliminated?'<span class="elim-badge">ÉLIMINÉ</span>':'';
+      var tr=document.createElement('tr');
+      tr.innerHTML=
+        '<td class="muted">'+fmtDate(r.created_at)+'</td>'+
+        '<td style="font-weight:600">'+esc(r.name)+'</td>'+
+        '<td class="score-cell '+scoreClass+'">'+(r.eliminated?'—':r.score!=null?r.score+'%':'-')+'</td>'+
+        '<td>'+(r.eliminated?'—':r.correct!=null?r.correct:'-')+' / '+(r.eliminated?'—':r.total!=null?r.total:'-')+'</td>'+
+        '<td class="time-cell">'+tl+'</td>'+
+        '<td>'+elim+'<span class="status-badge status-'+status+'">'+statusLabel(status)+'</span></td>'+
+        '<td><button class="btn ghost sm btn-detail">Voir</button></td>'+
+        '<td>'+actionBtns(r,status)+'</td>';
+      tb.appendChild(tr);
+      var id=r.id;
+      var btnR=tr.querySelector('.btn-recue');
+      var btnX=tr.querySelector('.btn-recale');
+      var btnD=tr.querySelector('.btn-detail');
+      if(btnR)btnR.addEventListener('click',function(){setStatus(id,'recue');});
+      if(btnX)btnX.addEventListener('click',function(){setStatus(id,'recale');});
+      if(btnD)btnD.addEventListener('click',function(){openDetail(r);});
+    });
+  }
+
+  function actionBtns(r,status){
+    if(status==='attente'){
+      return '<button class="btn sm recue btn-recue" style="margin-right:6px">Reçu</button>'+
+             '<button class="btn sm recale btn-recale">Recalé</button>';
+    }
+    if(status==='recue'){return '<button class="btn sm recale btn-recale">Recalé</button>';}
+    if(status==='recale'){return '<button class="btn sm recue btn-recue">Reçu</button>';}
+    return '';
+  }
+
+  function setStatus(id,status){
+    // optimistic update locally
+    var row=rows.find(function(r){return r.id===id;});
+    if(row)row.statut=status;
+    render();
+    // persist to Supabase
+    if(!sb)return;
+    sb.from('exam_aspirant').update({statut:status}).eq('id',id).then(function(res){
+      if(res.error){
+        console.error('Erreur update statut:',res.error.message);
+        // revert on failure
+        if(row)row.statut=row.statut;
+        render();
+      }
+    });
+  }
+
+  function statusLabel(s){
+    return s==='recue'?'Reçu':s==='recale'?'Recalé':'En attente';
+  }
+
+  function card(l,n,col){
+    var cls=col?(' '+col):'';
+    return '<div class="card"><div class="lbl">'+l+'</div><div class="num'+cls+'">'+n+'</div></div>';
+  }
+
+  function fmtDate(d){
+    if(!d)return '-';var dt=new Date(d);if(isNaN(dt))return d;
+    var p=function(x){return (x<10?'0':'')+x;};
+    return p(dt.getDate())+'/'+p(dt.getMonth()+1)+' '+p(dt.getHours())+':'+p(dt.getMinutes());
+  }
+
+  function fmtTime(s){
+    if(s==null)return '-';
+    var m=Math.floor(s/60),sc=s%60;
+    return (m<10?'0':'')+m+':'+(sc<10?'0':'')+sc;
+  }
+
+  function esc(t){t=(t==null?'':''+t);
+    return t.replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
+
+  document.querySelectorAll('th[data-sort]').forEach(function(th){
+    th.addEventListener('click',function(){
+      var k=th.dataset.sort;
+      if(sortKey===k){sortDir*=-1;}else{sortKey=k;sortDir=(k==='created_at')?-1:1;}
+      render();
+    });
+  });
+  el('search').addEventListener('input',render);
+  el('filterStatus').addEventListener('change',render);
+  el('refreshBtn').addEventListener('click',load);
+
+  function openDetail(r){
+    el('modalTitle').textContent='Détail — '+r.name+' ('+fmtDate(r.created_at)+')';
+    var body=el('modalBody'); body.innerHTML='';
+    if(r.eliminated){
+      var d=document.createElement('div');
+      d.innerHTML='<div class="elim-badge">Candidat éliminé à la question préliminaire</div>'+
+        '<p style="color:var(--sand-deep);font-style:italic;margin-top:8px;">A répondu qu\'il utilise le ninjutsu médical directement sans évaluation préalable.</p>';
+      body.appendChild(d); el('modalBg').style.display='flex'; return;
+    }
+    var answers=[];
+    try{ if(r.answers)answers=JSON.parse(r.answers); }catch(e){}
+    if(!answers.length){
+      body.innerHTML='<p class="muted" style="font-style:italic">Aucun détail disponible.</p>';
+      el('modalBg').style.display='flex'; return;
+    }
+    // summary bar
+    var wrongs=answers.filter(function(a){return !a.ok;});
+    var sumDiv=document.createElement('div');
+    sumDiv.style.cssText='margin-bottom:16px;padding:10px 12px;background:rgba(20,12,4,.4);border-radius:8px;border:1px solid rgba(181,113,43,.3);';
+    sumDiv.innerHTML='<span style="color:var(--chakra-glow);font-weight:700">'+(answers.length-wrongs.length)+' correctes</span> &nbsp;·&nbsp; '+
+      '<span style="color:var(--blood-light);font-weight:700">'+wrongs.length+' erreur'+(wrongs.length>1?'s':'')+'</span> &nbsp;·&nbsp; '+
+      '<span style="color:var(--sand-deep)">Score : '+(r.score!=null?r.score+'%':'—')+'</span>';
+    body.appendChild(sumDiv);
+    answers.forEach(function(a,i){
+      var d=document.createElement('div'); d.className='detail-row';
+      var icon=a.ok?'✓':'✗';
+      var cls=a.ok?'detail-ok':'detail-bad';
+      d.innerHTML='<div class="detail-q">'+(i+1)+'. '+esc(a.q)+'</div>'+
+        '<div class="detail-ans '+cls+'">'+icon+' '+esc(a.chosen)+'</div>'+
+        (!a.ok?'<div class="detail-correct-label">Bonne réponse : '+esc(a.correct_answer)+'</div>':'');
+      body.appendChild(d);
+    });
+    el('modalBg').style.display='flex';
+  }
+
+  function closeModal(){el('modalBg').style.display='none';}
+  window.closeModal=closeModal;
+
+  el('csvBtn').addEventListener('click',function(){
+    if(!rows.length)return;
+    var cols=['created_at','name','score','correct','total','time_left'];
+    var csv=cols.join(',')+'\n'+rows.map(function(r){
+      return cols.map(function(c){var v=r[c]==null?'':(''+r[c]).replace(/"/g,'""');
+        return /[",\n]/.test(v)?'"'+v+'"':v;}).join(',');
+    }).join('\n');
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download='exam_aspirant_seimei.csv';a.click();
+  });
+})();
+</script>
+</body>
+</html>
