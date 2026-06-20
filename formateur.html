@@ -98,7 +98,7 @@
     border:1px solid rgba(196,69,58,.5);margin-bottom:12px;}
   footer{text-align:center;margin-top:24px;color:var(--sand-deep);font-style:italic;}
   footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
-</style>
+.ico{width:1em;height:1em;vertical-align:-.14em;margin-right:.25em}</style>
 </head>
 <body>
 <div class="wrap">
@@ -160,7 +160,7 @@
   <!-- DETAIL MODAL -->
   <div class="modal-bg" id="modalBg" style="display:none;" onclick="if(event.target===this)closeModal()">
     <div class="modal">
-      <span class="modal-close" onclick="closeModal()">✕</span>
+      <span class="modal-close" onclick="closeModal()"><svg class="ico" <path d="M6 6l12 12M18 6 6 18"/>><path d="M6 6l12 12M18 6 6 18"/></svg></span>
       <h3 id="modalTitle">Détail</h3>
       <div id="modalBody"></div>
     </div>
@@ -345,7 +345,7 @@
     body.appendChild(sumDiv);
     answers.forEach(function(a,i){
       var d=document.createElement('div'); d.className='detail-row';
-      var icon=a.ok?'✓':'✗';
+      var icon=a.ok?'<svg class="ico" <path d="M5 13l4 4L19 7"/>><path d="M5 13l4 4L19 7"/></svg>':'<svg class="ico" <path d="M6 6l12 12M18 6 6 18"/>><path d="M6 6l12 12M18 6 6 18"/></svg>';
       var cls=a.ok?'detail-ok':'detail-bad';
       d.innerHTML='<div class="detail-q">'+(i+1)+'. '+esc(a.q)+'</div>'+
         '<div class="detail-ans '+cls+'">'+icon+' '+esc(a.chosen)+'</div>'+
