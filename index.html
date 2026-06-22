@@ -121,7 +121,7 @@
       <h2>Consignes</h2>
       <p class="lead">Cet examen est requis pour l'obtention du grade d'<strong>Aspirant</strong> au sein de la Section Médicale Seimei. Il comporte <strong>20 questions</strong> tirées aléatoirement d'un pool étendu, couvrant l'ensemble des fondamentaux médicaux attendus à ce grade.</p>
       <p class="hint">Tu disposes de <strong>5 minutes</strong> pour répondre. Le temps écoulé, l'examen se soumet automatiquement. Aucun résultat ne te sera communiqué — les résultats sont transmis directement au formateur.</p>
-      <p class="hint" style="margin-top:8px;color:var(--blood-light);"><svg class="ico" <path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/>><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Une seule tentative par session. Sois prêt avant de commencer.</p>
+      <p class="hint" style="margin-top:8px;color:var(--blood-light);"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Une seule tentative par session. Sois prêt avant de commencer.</p>
     </div>
     <div class="panel">
       <h2>Identification</h2>
@@ -148,7 +148,7 @@
   <!-- ÉLIMINÉ -->
   <div id="eliminated" style="display:none;">
     <div class="panel" style="text-align:center;">
-      <div class="end-icon"><svg class="ico" <circle cx="12" cy="12" r="9"/><path d="M6 12h12"/>><circle cx="12" cy="12" r="9"/><path d="M6 12h12"/></svg></div>
+      <div class="end-icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M6 12h12"/></svg></div>
       <div class="end-title" style="color:var(--blood-light);">Examen invalidé</div>
       <div class="end-sub">Ta réponse à la question préliminaire démontre une méconnaissance fondamentale des protocoles de la Seimei.<br><br>Un médecin ninja évalue toujours la situation et applique les gestes adaptés avant tout recours au ninjutsu médical.<br><br>Reprends les bases avant de te représenter.</div>
       <div class="cloud-status" id="cloudStatusElim">⏳ Envoi en cours...</div>
@@ -175,7 +175,7 @@
   <!-- END -->
   <div id="end">
     <div class="panel">
-      <div class="end-icon"><svg class="ico" <rect x="5" y="5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/>><rect x="5" y="5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/></svg></div>
+      <div class="end-icon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 11h6M9 15h6"/></svg></div>
       <div class="end-title">Examen soumis</div>
       <div class="end-sub">Tes réponses ont été transmises au formateur.<br>Les résultats te seront communiqués par la Section Médicale Seimei.</div>
       <div class="cloud-status" id="cloudStatus">⏳ Envoi en cours...</div>
@@ -601,15 +601,15 @@
     var note=el(noteId);
     var URL=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:null;
     var KEY=(typeof SUPABASE_KEY!=='undefined')?SUPABASE_KEY:null;
-    if(!URL||!KEY){note.textContent="<svg class="ico" <path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/>><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Configuration absente.";note.className="cloud-status warn";return;}
+    if(!URL||!KEY){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Configuration absente.";note.className="cloud-status warn";return;}
     note.textContent="⏳ Envoi en cours...";note.className="cloud-status";
     try{
       var sb=window.supabase.createClient(URL,KEY);
       sb.from('exam_aspirant').insert([row]).then(function(res){
-        if(res.error){note.textContent="<svg class="ico" <path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/>><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur : "+res.error.message;note.className="cloud-status warn";}
-        else{note.textContent="<svg class="ico" <path d="M5 13l4 4L19 7"/>><path d="M5 13l4 4L19 7"/></svg> Examen transmis à la Section Médicale.";note.className="cloud-status ok";}
-      },function(){note.textContent="<svg class="ico" <path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/>><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur réseau.";note.className="cloud-status warn";});
-    }catch(e){note.textContent="<svg class="ico" <path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/>><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur.";note.className="cloud-status warn";}
+        if(res.error){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur : "+res.error.message;note.className="cloud-status warn";}
+        else{note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg> Examen transmis à la Section Médicale.";note.className="cloud-status ok";}
+      },function(){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur réseau.";note.className="cloud-status warn";});
+    }catch(e){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur.";note.className="cloud-status warn";}
   }
 
   el('startBtn').addEventListener('click',startExam);
