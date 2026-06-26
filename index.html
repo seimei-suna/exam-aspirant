@@ -601,15 +601,17 @@
     var note=el(noteId);
     var URL=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:null;
     var KEY=(typeof SUPABASE_KEY!=='undefined')?SUPABASE_KEY:null;
-    if(!URL||!KEY){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Configuration absente.";note.className="cloud-status warn";return;}
-    note.textContent="⏳ Envoi en cours...";note.className="cloud-status";
+    var icoWarn='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg>';
+    var icoOk='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+    if(!URL||!KEY){note.innerHTML=icoWarn+' Configuration absente.';note.className='cloud-status warn';return;}
+    note.textContent='⏳ Envoi en cours...';note.className='cloud-status';
     try{
       var sb=window.supabase.createClient(URL,KEY);
       sb.from('exam_aspirant').insert([row]).then(function(res){
-        if(res.error){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur : "+res.error.message;note.className="cloud-status warn";}
-        else{note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg> Examen transmis à la Section Médicale.";note.className="cloud-status ok";}
-      },function(){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur réseau.";note.className="cloud-status warn";});
-    }catch(e){note.textContent="<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg> Erreur.";note.className="cloud-status warn";}
+        if(res.error){note.innerHTML=icoWarn+' Erreur : '+res.error.message;note.className='cloud-status warn';}
+        else{note.innerHTML=icoOk+' Examen transmis à la Section Médicale.';note.className='cloud-status ok';}
+      },function(){note.innerHTML=icoWarn+' Erreur réseau.';note.className='cloud-status warn';});
+    }catch(e){note.innerHTML=icoWarn+' Erreur.';note.className='cloud-status warn';}
   }
 
   el('startBtn').addEventListener('click',startExam);
